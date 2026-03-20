@@ -1,7 +1,7 @@
 FROM node:20-alpine
 RUN apk add --no-cache openssl
 
-EXPOSE 10000
+EXPOSE 3000
 
 WORKDIR /app
 
@@ -14,6 +14,5 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY . .
 
 RUN npm run build
-RUN npm run setup
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "docker-start"]
