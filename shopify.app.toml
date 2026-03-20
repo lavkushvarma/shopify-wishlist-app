@@ -1,0 +1,31 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "81c99a88fdc315e89fe9a3b6a1e1411f"
+name = "wishlist-app"
+application_url = "https://example.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-04"
+
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "/webhooks/app/uninstalled"
+
+[[webhooks.subscriptions]]
+topics = ["app/scopes_update"]
+uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+scopes = "write_products"
+
+[auth]
+redirect_urls = ["https://example.com/api/auth"]
+
+[app_proxy]
+prefix = "apps"
+subpath = "wishlist"
+url = "https://example.com/apps/wishlist"

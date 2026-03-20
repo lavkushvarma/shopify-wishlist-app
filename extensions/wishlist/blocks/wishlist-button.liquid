@@ -1,0 +1,292 @@
+{% schema %}
+{
+  "name": "Wishlist Button",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Add to Wishlist"
+    },
+    {
+      "type": "text",
+      "id": "button_text_added",
+      "label": "Button Text (Added)",
+      "default": "In Wishlist"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#000000"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="wishlist-wrapper" 
+     data-product-id="{{ product.id }}"
+     data-product-handle="{{ product.handle }}">
+  
+  <button 
+    class="wishlist-button"
+    data-wishlist-button
+    type="button"
+    aria-label="{{ block.settings.button_text }}"
+    style="--btn-color: {{ block.settings.button_color }};">
+    
+    <span class="wishlist-icon" data-wishlist-icon>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path class="heart-outline" d="M17.367 3.842c-.426-.426-.932-.764-1.488-.995a4.814 4.814 0 00-3.754 0c-.556.231-1.062.569-1.488.995L10 4.725l-.884-.883a4.845 4.845 0 00-3.483-1.443c-1.216 0-2.382.483-3.242 1.343-.86.86-1.343 2.026-1.343 3.242 0 1.216.483 2.382 1.343 3.242l.883.883L10 17.692l6.483-6.483.884-.884c.426-.425.764-.931.995-1.487a4.814 4.814 0 000-3.754 4.806 4.806 0 00-.995-1.488z" 
+              stroke="currentColor" 
+              stroke-width="1.5" 
+              stroke-linecap="round" 
+              stroke-linejoin="round"/>
+        <path class="heart-filled" d="M17.367 3.842c-.426-.426-.932-.764-1.488-.995a4.814 4.814 0 00-3.754 0c-.556.231-1.062.569-1.488.995L10 4.725l-.884-.883a4.845 4.845 0 00-3.483-1.443c-1.216 0-2.382.483-3.242 1.343-.86.86-1.343 2.026-1.343 3.242 0 1.216.483 2.382 1.343 3.242l.883.883L10 17.692l6.483-6.483.884-.884c.426-.425.764-.931.995-1.487a4.814 4.814 0 000-3.754 4.806 4.806 0 00-.995-1.488z" 
+              fill="currentColor" 
+              style="opacity: 0"/>
+      </svg>
+    </span>
+    
+    <span class="wishlist-text" data-wishlist-text>{{ block.settings.button_text }}</span>
+  </button>
+</div>
+
+<style>
+  .wishlist-wrapper {
+    margin: 15px 0;
+  }
+
+  .wishlist-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 2px solid var(--btn-color);
+    background: white;
+    color: var(--btn-color);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+  }
+
+  .wishlist-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .wishlist-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .wishlist-button.active .heart-outline {
+    opacity: 0;
+  }
+
+  .wishlist-button.active .heart-filled {
+    opacity: 1 !important;
+    fill: #ff0000;
+  }
+
+  .wishlist-icon {
+    display: flex;
+    transition: transform 0.3s ease;
+  }
+
+  .wishlist-button.active .wishlist-icon {
+    animation: heartbeat 0.6s ease;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1); }
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  var wrapper = document.querySelector('.wishlist-wrapper');
+  if (!wrapper) return;
+
+  var button = wrapper.querySelector('[data-wishlist-button]');
+  var textEl = wrapper.querySelector('[data-wishlist-text]');
+  
+  var productId = wrapper.dataset.productId;
+  var productHandle = wrapper.dataset.productHandle;
+  
+  var buttonTextAdd = {{ block.settings.button_text | json }};
+  var buttonTextAdded = {{ block.settings.button_text_added | json }};
+
+  console.log('Wishlist initialized:', { productId: productId, productHandle: productHandle });
+
+  function getCustomerId() {
+    var guestId = localStorage.getItem('guestId');
+    if (!guestId) {
+      guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('guestId', guestId);
+    }
+    return guestId;
+  }
+
+  function getShop() {
+    return (window.Shopify && window.Shopify.shop) || window.location.hostname;
+  }
+
+  function setLoading(loading) {
+    button.disabled = loading;
+    button.style.opacity = loading ? '0.6' : '1';
+  }
+
+  function updateButton(isActive) {
+    if (isActive) {
+      button.classList.add('active');
+      textEl.textContent = buttonTextAdded;
+    } else {
+      button.classList.remove('active');
+      textEl.textContent = buttonTextAdd;
+    }
+  }
+
+  function showMessage(message, isError) {
+    var toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = 
+      'position: fixed;' +
+      'bottom: 20px;' +
+      'right: 20px;' +
+      'background: ' + (isError ? '#d32f2f' : '#4caf50') + ';' +
+      'color: white;' +
+      'padding: 12px 24px;' +
+      'border-radius: 4px;' +
+      'z-index: 10000;' +
+      'animation: slideIn 0.3s ease;';
+    
+    document.body.appendChild(toast);
+
+    setTimeout(function() {
+      toast.style.animation = 'slideOut 0.3s ease';
+      setTimeout(function() { 
+        toast.remove(); 
+      }, 300);
+    }, 3000);
+  }
+
+  async function toggleWishlist() {
+    var isActive = button.classList.contains('active');
+    var action = isActive ? 'remove' : 'add';
+    
+    setLoading(true);
+
+    var formData = new FormData();
+    formData.append('customer_id', getCustomerId());
+    formData.append('shop', getShop());
+    formData.append('product_id', productId);
+    if (productHandle) {
+      formData.append('product_handle', productHandle);
+    }
+    formData.append('action', action);
+
+    console.log('Sending wishlist request:', {
+      customer_id: getCustomerId(),
+      shop: getShop(),
+      product_id: productId,
+      product_handle: productHandle,
+      action: action
+    });
+
+    try {
+      var response = await fetch('/apps/wishlist', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        var errorText = await response.text();
+        console.error('Response error:', errorText);
+        throw new Error('HTTP error! status: ' + response.status);
+      }
+
+      var data = await response.json();
+      console.log('Response data:', data);
+
+      if (data.success) {
+        updateButton(!isActive);
+        showMessage(isActive ? 'Removed from wishlist' : 'Added to wishlist!');
+      } else {
+        showMessage('Error: ' + (data.error || 'Something went wrong'), true);
+      }
+    } catch (error) {
+      console.error('Wishlist error:', error);
+      showMessage('Failed to update wishlist', true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function checkWishlistStatus() {
+    var customerId = getCustomerId();
+    var shop = getShop();
+    
+    var url = '/apps/wishlist?customer_id=' + encodeURIComponent(customerId) + '&shop=' + encodeURIComponent(shop);
+    
+    console.log('Checking wishlist status:', url);
+
+    try {
+      var response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        console.error('Response not OK:', response.status);
+        return;
+      }
+
+      var data = await response.json();
+      console.log('Wishlist data:', data);
+
+      if (data.items) {
+        var isInWishlist = data.items.some(function(item) {
+          return item.productId === productId;
+        });
+        updateButton(isInWishlist);
+      }
+    } catch (error) {
+      console.error('Error checking wishlist:', error);
+    }
+  }
+
+  var style = document.createElement('style');
+  style.textContent = 
+    '@keyframes slideIn {' +
+    '  from { transform: translateX(400px); opacity: 0; }' +
+    '  to { transform: translateX(0); opacity: 1; }' +
+    '}' +
+    '@keyframes slideOut {' +
+    '  from { transform: translateX(0); opacity: 1; }' +
+    '  to { transform: translateX(400px); opacity: 0; }' +
+    '}';
+  document.head.appendChild(style);
+
+  button.addEventListener('click', toggleWishlist);
+
+  checkWishlistStatus();
+})();
+</script>

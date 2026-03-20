@@ -1,0 +1,57 @@
+# Dependencies
+node_modules
+
+# Build outputs
+/.cache
+/build
+/app/build
+/public/build/
+/public/_dev
+/app/public/build
+
+# Database
+/prisma/dev.sqlite
+/prisma/dev.sqlite-journal
+database.sqlite
+*.db
+*.db-journal
+
+# Environment variables
+.env
+.env.*
+
+# Extensions
+/extensions/*/dist
+
+# Shopify files
+.shopify/*
+.shopify.lock
+
+# React Router
+.react-router/
+
+# Large files (ADD THIS)
+*.dmg
+*.exe
+*.zip
+*.rar
+*.7z
+*.app
+*.pkg
+*.iso
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+npm-debug.log*
