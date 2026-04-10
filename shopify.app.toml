@@ -2,7 +2,7 @@
 
 client_id = "81c99a88fdc315e89fe9a3b6a1e1411f"
 name = "wishlist-app"
-application_url = "https://example.com"
+application_url = "https://shopify-wishlist-app-production-bc26.up.railway.app"
 embedded = true
 
 [build]
@@ -24,9 +24,9 @@ api_version = "2026-04"
 scopes = "write_products"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://shopify-wishlist-app-production-bc26.up.railway.app/api/auth" ]
 
 [app_proxy]
-url = "https://example.com/apps/wishlist"
+url = "https://shopify-wishlist-app-production-bc26.up.railway.app/apps/wishlist"
 subpath = "wishlist"
 prefix = "apps"
